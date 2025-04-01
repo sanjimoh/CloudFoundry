@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "helm.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "helm.name" . }}
+    helm.sh/chart: {{ include "helm.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  {{- with .Values.securityContext }}
+  securityContext:
+{{ toYaml . | indent 8 }}
+  {{- end }}
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "helm.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "helm.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: PORT
+            value: "{{ .Values.service.port }}"
+          - name: BASE_GUID
+            value: "{{ .Values.serviceBroker.baseGUID }}"
+          - name: SERVICE_NAME
+            value: "{{ .Values.serviceBroker.class }}"
+          - name: SERVICE_PLAN
+            value: "{{ .Values.serviceBroker.plan }}"
+          - name: FAKE_ASYNC
+            value: "{{ .Values.serviceBroker.fakeAsync }}"
+          - name: FAKE_STATEFUL
+            value: "{{ .Values.serviceBroker.fakeStateful }}"
+          - name: CREDENTIALS
+            value: |-
+                {{ .Values.serviceBroker.credentials }}
+          - name: TAGS
+            value: "{{ .Values.serviceBroker.tags }}"
+          - name: IMAGE_URL
+            value: "{{ .Values.serviceBroker.imageURL }}"
+          - name: AUTH_USER
+            value: broker
+          - name: AUTH_PASSWORD
+            value: broker
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

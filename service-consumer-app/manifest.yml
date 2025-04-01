@@ -1,0 +1,8 @@
+applications:
+- name: service-consumer-app
+  memory: 128M
+  buildpacks:
+    - nodejs_buildpack
+  services:
+    - my-dummy-service  # Name of your bound service instance
+
