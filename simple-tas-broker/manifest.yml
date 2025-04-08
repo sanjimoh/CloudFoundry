@@ -1,0 +1,13 @@
+applications:
+- name: simple-tas-broker
+  buildpacks:
+  - nodejs_buildpack
+  stack: cflinuxfs4
+  env:
+    AUTH_USER: admin
+    AUTH_PASSWORD: secret
+    SERVICE_NAME: simple-service
+    SERVICE_PLAN: shared
+  instances: 1
+  memory: 128M
+  disk_quota: 256M 

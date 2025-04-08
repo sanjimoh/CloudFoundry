@@ -1,0 +1,13 @@
+{
+  "name": "simple-tas-broker",
+  "version": "1.0.0",
+  "description": "A simple service broker for Tanzu Application Service",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2"
+  }
+} 
